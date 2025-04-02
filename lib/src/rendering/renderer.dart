@@ -1,4 +1,7 @@
 import 'dart:ui';
+import 'dart:typed_data'; // For Float32List used in Vertices
+import 'package:vector_math/vector_math.dart'; // For Matrix4
+import 'camera.dart'; // Import Camera
 
 /// The main rendering interface for the Nebula Engine.
 ///
@@ -17,6 +20,9 @@ abstract class Renderer {
   /// Ends a rendering frame and presents it.
   void endFrame();
 
+  /// Sets the camera for the current frame, defining view and projection.
+  void setCamera(Camera camera);
+
   /// Renders a 2D sprite image.
   ///
   /// [image]: The image to draw.
@@ -25,9 +31,8 @@ abstract class Renderer {
   /// [paint]: Paint object containing color, blend mode, etc.
   void drawSprite(Image image, Rect dstRect, {Rect? srcRect, Paint? paint});
 
-  /// Renders a 3D mesh.
-  /// (Details TBD: Mesh data, material, transform, lighting info, etc.)
-  void renderMesh(/* ... mesh parameters ... */);
+  /// Draws raw 2D vertices.
+  void drawVertices(Vertices vertices, BlendMode blendMode, Paint paint);
 
   /// Draws a rectangle.
   void drawRect(Rect rect, Paint paint);
@@ -42,6 +47,8 @@ class NebulaRenderer implements Renderer {
 
   // No initialize method needed if canvas is provided per frame.
   // Constructor can be used for one-time setup if required.
+  Camera? _currentCamera; // Store the current camera
+
   NebulaRenderer() {
     // TODO: One-time setup like loading default shaders/materials if any.
   }
@@ -71,7 +78,16 @@ class NebulaRenderer implements Renderer {
     // Restore to the initial state before returning control.
     _canvas?.restore();
     _canvas = null; // Invalidate canvas access after frame ends
+    _currentCamera = null; // Clear camera reference at end of frame
     // TODO: Other frame finalization (log stats, etc.)
+  }
+
+  @override
+  void setCamera(Camera camera) {
+    _currentCamera = camera;
+    // TODO: Potentially pre-calculate view-projection matrix here?
+    // Or apply it directly to canvas transform in drawVertices/drawMesh?
+    // For now, just store it. RenderSystem will need to access it.
   }
 
   @override
@@ -91,9 +107,15 @@ class NebulaRenderer implements Renderer {
   }
 
   @override
-  void renderMesh(/* ... mesh parameters ... */) {
-    // TODO: Implement 3D mesh rendering using _canvas?.drawVertices(...) etc.
-    // This will involve managing shaders, vertex buffers, uniforms etc.
+  void drawVertices(Vertices vertices, BlendMode blendMode, Paint paint) {
+    if (_canvas == null) {
+      print(
+        "Warning: drawVertices called outside of beginFrame/endFrame scope.",
+      );
+      return;
+    }
+    // Simple 2D drawing without MVP transform for now
+    _canvas!.drawVertices(vertices, blendMode, paint);
   }
 
   @override

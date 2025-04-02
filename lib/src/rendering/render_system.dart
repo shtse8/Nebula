@@ -1,11 +1,13 @@
 import 'dart:ui'; // For Duration, potentially Canvas later
 
 import '../scene/system.dart';
+import 'package:vector_math/vector_math.dart'; // For Matrix4
 import '../scene/world.dart' as nebula; // Alias needed
 import '../scene/components/transform_component.dart'; // Import TransformComponent
 import 'renderer.dart';
+import 'camera.dart'; // Import Camera
 import 'components/sprite_component.dart'; // Import SpriteComponent
-// TODO: Import MeshComponent when created
+import 'components/mesh_component.dart'; // Import MeshComponent
 
 /// System responsible for rendering entities.
 ///
@@ -13,9 +15,11 @@ import 'components/sprite_component.dart'; // Import SpriteComponent
 /// and Mesh/Sprite) and uses the provided [Renderer] to draw them to the screen.
 class RenderSystem extends System {
   final Renderer renderer;
+  late final Camera camera; // Add a camera reference
 
   /// Creates a RenderSystem that uses the given [renderer].
-  RenderSystem(this.renderer);
+  /// Creates a RenderSystem that uses the given [renderer] and [camera].
+  RenderSystem(this.renderer, this.camera);
 
   @override
   void onAdded() {
@@ -39,6 +43,7 @@ class RenderSystem extends System {
   void render(Canvas canvas) {
     // 1. Prepare the renderer for the frame, providing the canvas
     renderer.beginFrame(canvas);
+    renderer.setCamera(camera); // Set the camera for the frame
     renderer.clear(); // Example: Clear screen
 
     // 2. Query for entities with Transform and Sprite components
@@ -81,18 +86,17 @@ class RenderSystem extends System {
         // Scale - Note: scaling affects the draw size
         canvas.scale(transform.scale.x, transform.scale.y);
 
-        // Calculate destination rect centered at the (now transformed) origin
-        // Use the source rect size for drawing dimensions before scaling
-        final double drawWidth = srcRect.width;
-        final double drawHeight = srcRect.height;
-        // Anchor point is center (0.5, 0.5)
-        final double anchorX = drawWidth * 0.5;
-        final double anchorY = drawHeight * 0.5;
+        // Calculate destination rect as a unit square centered at the origin.
+        // The canvas scale transform will handle the actual sizing based on transform.scale
+        // and potentially a base size defined in SpriteComponent or elsewhere.
+        // For now, assume scale directly controls pixel size relative to source.
+        const double anchorX = 0.5; // Centered anchor
+        const double anchorY = 0.5;
         final dstRect = Rect.fromLTWH(
-          -anchorX,
-          -anchorY,
-          drawWidth,
-          drawHeight,
+          -anchorX, // -0.5
+          -anchorY, // -0.5
+          1.0, // Width = 1 unit
+          1.0, // Height = 1 unit
         );
 
         // Prepare paint object
@@ -115,7 +119,48 @@ class RenderSystem extends System {
       }
     }
 
-    // TODO: Add similar loops for other renderable types (Meshes, Shapes, Text)
+    // --- Mesh Rendering ---
+    final meshEntities = world.queryEntities([
+      TransformComponent,
+      MeshComponent,
+    ]);
+
+    for (final entity in meshEntities) {
+      final transform = world.getComponent<TransformComponent>(entity);
+      final mesh = world.getComponent<MeshComponent>(entity);
+
+      if (transform != null &&
+          transform.isEnabled &&
+          mesh != null &&
+          mesh.isEnabled &&
+          mesh.verticesObject != null) {
+        final vertices = mesh.verticesObject!;
+        // TODO: Apply material properties (color, shader, texture) to Paint
+        final paint =
+            Paint()
+              ..color = const Color(0xFF00FF00); // Default green for meshes
+
+        // Apply transformations using canvas save/restore
+        canvas.save();
+        canvas.translate(transform.position.x, transform.position.y);
+        canvas.rotate(transform.rotation.radians);
+        canvas.scale(transform.scale.x, transform.scale.y);
+
+        // Draw the vertices using the renderer
+        // Note: drawVertices doesn't inherently handle 3D projection or model matrix.
+        // The renderer's implementation of drawVertices would need to apply
+        // the camera's viewProjection matrix and this entity's model matrix (from transform).
+        // For now, this will draw the 2D offsets defined in MeshComponent, transformed.
+        // Pass BlendMode (e.g., srcOver) instead of VertexMode
+        // Pass the modelMatrix to the renderer
+        renderer.drawVertices(vertices, BlendMode.srcOver, paint);
+
+        canvas.restore(); // Restore canvas state
+      }
+    }
+    // --- End Mesh Rendering ---
+
+    // TODO: Add loops for Shapes, Text etc.
 
     // 4. Finalize the frame
     renderer.endFrame();

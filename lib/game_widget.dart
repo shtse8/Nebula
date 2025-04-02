@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/scheduler.dart'; // Need TickerProviderStateMixin, Ticker
+import 'package:flutter/scheduler.dart';
+import 'package:vector_math/vector_math.dart'; // Import vector_math
 
 import 'nebula_engine.dart'; // Import the engine exports
 
@@ -28,7 +29,8 @@ class _GameWidgetState extends State<GameWidget>
   RenderSystem? renderSystem;
   late final InputManager inputManager;
   late final AssetManager assetManager; // Add AssetManager instance
-  final FocusNode _focusNode = FocusNode(); // Needed for keyboard input
+  final FocusNode _focusNode = FocusNode();
+  late final Camera camera; // Add Camera instance
 
   @override
   void initState() {
@@ -40,11 +42,17 @@ class _GameWidgetState extends State<GameWidget>
     renderer = NebulaRenderer(); // Use the concrete implementation
     // gameLoop = GameLoop(world); // Remove GameLoop creation
     inputManager = InputManager();
-    assetManager = AssetManager(); // Create AssetManager
+    assetManager = AssetManager();
+    camera =
+        Camera()
+          ..position.z =
+              500.0 // Keep camera pulled back
+          ..target = Vector3(75.0, 75.0, 0.0); // Look towards the entities
 
     // 2. Add core systems (Order can matter!)
     // Add RenderSystem first so it's available for the painter
-    renderSystem = world.addSystem(RenderSystem(renderer));
+    // Pass camera to RenderSystem
+    renderSystem = world.addSystem(RenderSystem(renderer, camera));
     // Add PhysicsSystem
     // world.addSystem(PhysicsSystem()); // Temporarily commented out due to build error
     // Add InputSystem, passing the InputManager

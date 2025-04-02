@@ -1,4 +1,4 @@
-# Progress: Nebula Engine (Basic Loop, Render, Input Working)
+# Progress: Nebula Engine (3D Rendering Foundation)
 
 ## 1. What Works
 
@@ -8,12 +8,13 @@
 *   **ECS Architecture Adopted & Implemented:**
     *   `World`, `Entity` (ID), `Component` base, `System` base classes created and exported.
     *   Basic ECS interactions tested (`test/nebula_engine_test.dart`).
-*   **Core Loop:** Game update loop driven by `Ticker` within `GameWidget`. `GameLoop` class removed.
+*   **Core Loop:** Game update loop driven by `Ticker` within `GameWidget`.
 *   **Rendering:**
-    *   `Renderer` interface updated (`drawSprite` added); `NebulaRenderer` implementation updated.
-    *   `RenderSystem` updated to query/draw `SpriteComponent`s at fixed size.
+    *   `Renderer` interface updated (`drawSprite`, `setCamera`, `drawVertices` added); `NebulaRenderer` implementation updated.
+    *   `RenderSystem` updated to query/draw `SpriteComponent`s applying transforms (position, rotation, scale). Added `Camera` integration.
     *   `GameWidget` created using `CustomPaint` and `Ticker` to host engine and drive rendering/updates.
-    *   Basic rendering pipeline confirmed working via example app (displays sprites).
+    *   Basic `Camera` class created and exported.
+    *   Basic 2D rendering pipeline (sprites with transforms) confirmed working via example app.
 *   **Components:**
     *   `TransformComponent` created and uses base `vector_math`.
     *   `SpriteComponent` created and exported.
@@ -34,10 +35,11 @@
 
 ## 2. What's Left to Build (High Level)
 
-*   **Rendering Enhancements:**
-    *   Incorporate transform scale/rotation into `RenderSystem` sprite drawing.
-    *   Define `MeshComponent`.
-    *   Implement mesh drawing in `Renderer` / `RenderSystem`.
+*   **3D Rendering Implementation:**
+    *   Define `MeshComponent` (vertex data, indices, etc.).
+    *   Implement `Renderer.drawVertices` logic, including applying camera and model transformations (MVP matrix).
+    *   Update `RenderSystem` to query for and draw entities with `MeshComponent`.
+*   **Asset Loading:** Implement loading for 3D model formats (e.g., basic OBJ or glTF).
 *   **(Later) Physics Debugging & Refinement:**
     *   Resolve `forge2d` build errors (`World.step`, `Body.type`).
     *   Uncomment physics logic.
@@ -46,7 +48,6 @@
 *   **Input Refinement:**
     *   Handle scroll events.
     *   Implement gamepad support.
-*   **Asset Loading:** Implement loading for models, audio, JSON, etc.
 *   **API Design & Refinement:** Solidify the public API.
 *   **Testing:** Add more comprehensive tests.
 *   **Documentation:** Set up DartDoc generation and write initial docs.
@@ -55,15 +56,15 @@
 
 ## 3. Current Status
 
-*   **Phase:** Core Systems Implementation (Rendering, Input, Assets Started).
-*   **State:** Basic rendering, sprite loading, input capture, and input-driven movement are functional. Physics integration remains blocked. Ready for rendering enhancements or further input/asset implementation.
+*   **Phase:** Core Systems Implementation (3D Foundation Started).
+*   **State:** Basic 2D rendering, sprite loading, input capture, and input-driven movement are functional. Foundation for 3D rendering (Camera, updated Renderer/System) is in place. Physics integration remains blocked. Ready for 3D mesh implementation or further asset loading.
 
 ## 4. Known Issues / Blockers
 
 *   **Build Errors:** Unresolved `forge2d` API issues (`World.step`, `Body.type`) block physics implementation. Physics code is disabled.
 *   `PhysicsSystem` needs entity lifecycle handling (when unblocked).
-*   `RenderSystem` needs transform handling (scale/rotation) and mesh support.
-*   `Renderer` needs mesh drawing implementation.
+*   `Renderer.drawVertices` needs implementation (including matrix transforms).
+*   `RenderSystem` needs logic for `MeshComponent`.
 *   `MeshComponent` needs definition.
-*   `AssetManager` needs support for other types.
-*   Input capture on Android emulator might have focus issues (needs confirmation/investigation if targeting emulator).
+*   `AssetManager` needs support for other types (models, audio, etc.).
+*   Input capture on Android emulator might have focus issues.

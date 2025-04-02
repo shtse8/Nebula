@@ -1,29 +1,33 @@
-# Active Context: Nebula Engine (Basic Loop, Render, Input Working)
+# Active Context: Nebula Engine (3D Rendering Foundation)
 
 ## 1. Current Focus
 
-*   Confirmed basic rendering pipeline works via example app using Ticker-based updates.
-*   Confirmed basic Input handling (`InputManager`, `InputSystem`, `GameWidget` listeners) and usage (`PlayerControlSystem`) are working.
-*   Physics integration remains blocked by unresolved `forge2d` build errors.
+*   Setting up foundational elements for 3D rendering (Camera, Renderer updates).
+*   Basic 2D rendering (sprites) and input control remain functional.
+*   Physics integration remains blocked.
 
 ## 2. Recent Changes
 
-*   **Game Loop:** Replaced `GameLoop` class with `Ticker` logic within `_GameWidgetState` for driving updates and repaints. Removed `game_loop.dart`.
-*   **Input:** Created `PlayerControlSystem` in example to demonstrate using `InputManager` state to modify `TransformComponent`. Confirmed working. Removed debug prints from `GameWidget`.
-*   **Assets/Sprites:** Fixed `RenderSystem` to draw sprites at a fixed size. Confirmed working.
-*   **Vector Math:** Standardized usage to base `package:vector_math/vector_math.dart` across physics components, transform component, and example. Fixed related build errors.
-*   **Physics Debugging:** Build errors persist even after updating `forge2d` to `^0.14.0` and trying various fixes. Physics code remains commented out.
+*   **3D Setup:**
+    *   Created basic `Camera` class (`lib/src/rendering/camera.dart`) with view/projection matrix calculations and exported it.
+    *   Updated `Renderer` interface and `NebulaRenderer` implementation to accept a `Camera` and added placeholder `drawVertices` method (`lib/src/rendering/renderer.dart`).
+    *   Updated `RenderSystem` to hold and set the `Camera` (`lib/src/rendering/render_system.dart`).
+    *   Updated `GameWidget` to create and provide the `Camera` instance (`lib/game_widget.dart`).
+*   **Rendering:** Incorporated `TransformComponent` scale/rotation into `RenderSystem` sprite drawing logic.
+*   Previous work on Ticker-based loop, input handling, asset loading, sprite rendering, and vector math standardization remains completed.
+*   Physics code remains commented out due to persistent build errors.
 
 ## 3. Next Steps
 
 *   Update `progress.md` to reflect the current state.
-*   **Rendering Enhancements:**
-    *   Incorporate `TransformComponent`'s scale and rotation into sprite rendering in `RenderSystem`.
-    *   Define `MeshComponent`.
-    *   Implement mesh drawing in `Renderer` / `RenderSystem`.
+*   Update `progress.md` to reflect the current state.
+*   **3D Rendering Implementation:**
+    *   Define `MeshComponent` (vertex data, indices, etc.).
+    *   Implement `Renderer.drawVertices` logic, including applying camera and model transformations (MVP matrix).
+    *   Update `RenderSystem` to query for and draw entities with `MeshComponent`.
+*   **Asset Loading:** Implement loading for 3D model formats (e.g., basic OBJ or glTF).
 *   **(Later) Physics Debugging:** Revisit `forge2d` build errors.
 *   **(Later) Physics System Refinement:** Implement entity lifecycle handling.
-*   **Asset Loading:** Implement loading for other asset types (models, audio, JSON).
 
 ## 4. Active Decisions & Considerations
 

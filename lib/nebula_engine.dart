@@ -6,6 +6,7 @@ library nebula_engine;
 // Rendering system
 export 'src/rendering/renderer.dart';
 export 'src/rendering/render_system.dart';
+export 'src/rendering/camera.dart';
 
 // ECS (Entity-Component-System) Core
 export 'src/scene/world.dart';
@@ -13,6 +14,7 @@ export 'src/scene/entity.dart'; // Now a typedef Entity = int;
 export 'src/scene/component.dart';
 export 'src/scene/components/transform_component.dart';
 export 'src/rendering/components/sprite_component.dart';
+export 'src/rendering/components/mesh_component.dart';
 export 'src/scene/system.dart';
 
 // Asset management
