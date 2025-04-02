@@ -1,13 +1,15 @@
 import 'dart:typed_data';
-import 'dart:ui' show Vertices, VertexMode, Offset; // Add Offset
+import 'dart:ui' show VertexMode; // Only need VertexMode enum now
 
 import '../../scene/component.dart';
 // Potentially import MaterialComponent later
 
-/// Component holding geometry data for rendering a 2D mesh using Canvas.drawVertices.
+/// Component holding geometry data for rendering a 3D mesh.
 class MeshComponent extends Component {
-  /// Vertex positions as a list of 2D offsets.
-  List<Offset>? positions;
+  /// Raw vertex data (positions, potentially interleaved with normals, UVs, colors).
+  /// The exact layout depends on the shader and rendering pipeline expectations.
+  /// Example layout: [x0, y0, z0, u0, v0, nx0, ny0, nz0, x1, y1, z1, ...]
+  Float32List? vertices;
 
   /// Indices defining the triangles (or lines/points) of the mesh.
   /// If null, vertices are assumed to be in triangle order (or line/point order
@@ -22,27 +24,9 @@ class MeshComponent extends Component {
 
   /// Creates a MeshComponent.
   MeshComponent({
-    this.positions,
+    this.vertices,
     this.indices,
     this.vertexMode = VertexMode.triangles, // Default to triangles
     // this.material,
   });
-
-  /// Creates a Flutter Vertices object from the component data.
-  /// Returns null if vertex data is missing.
-  Vertices? get verticesObject {
-    if (positions == null) {
-      return null;
-    }
-    // Note: Colors and texture coordinates are often passed via Paint/Shader,
-    // but Vertices can optionally include them directly if needed.
-    // For now, we assume they are handled by the shader/material.
-    return Vertices(
-      vertexMode,
-      positions!, // Use the List<Offset>
-      indices: indices,
-      // colors: provide colors list if needed,
-      // textureCoordinates: provide texture coordinates list if needed,
-    );
-  }
 }

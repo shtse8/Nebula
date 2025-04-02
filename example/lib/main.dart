@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui show Image; // Only import Image with alias
-import 'dart:ui' show Offset; // Import Offset directly
+import 'dart:typed_data'; // Import Float32List
+import 'dart:ui'
+    show
+        Offset; // Import Offset directly (still needed?) - Let's remove if not used
 import 'package:flutter/material.dart' hide Image; // Hide Image widget
 import 'package:nebula_engine/nebula_engine.dart';
 import 'package:vector_math/vector_math.dart'; // Use base vector_math
@@ -79,11 +82,13 @@ Future<void> _setupSampleWorld(World world, AssetManager assetManager) async {
     world.addComponent(
       entity2,
       MeshComponent(
-        positions: [
-          const Offset(-20, -20), // Bottom-left
-          const Offset(20, -20), // Bottom-right
-          const Offset(0, 20), // Top-center
-        ],
+        // Use vertices (Float32List) with X, Y, Z coordinates
+        vertices: Float32List.fromList([
+          // X    Y    Z
+          -20, -20, 0.0, // Bottom-left
+          20, -20, 0.0, // Bottom-right
+          0, 20, 0.0, // Top-center
+        ]),
         // No indices needed for a single triangle with VertexMode.triangles
       ),
     );

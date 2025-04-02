@@ -1,4 +1,5 @@
-import 'dart:ui'; // For Duration, potentially Canvas later
+import 'dart:ui';
+import 'dart:typed_data'; // For Float32List
 
 import '../scene/system.dart';
 import 'package:vector_math/vector_math.dart'; // For Matrix4
@@ -133,8 +134,30 @@ class RenderSystem extends System {
           transform.isEnabled &&
           mesh != null &&
           mesh.isEnabled &&
-          mesh.verticesObject != null) {
-        final vertices = mesh.verticesObject!;
+          mesh.vertices != null) {
+        // Check mesh.vertices instead
+        // We need to convert Float32List to List<Offset> for drawVertices
+        // This assumes vertices are interleaved [x0, y0, z0, x1, y1, z1, ...]
+        // We only take x, y for the 2D Offset.
+        final positions = <Offset>[];
+        final Float32List verts = mesh.vertices!;
+        // Assuming stride is 3 (x, y, z) for simplicity now.
+        // TODO: Make stride configurable or get from mesh/material later.
+        const int stride = 3;
+        for (int i = 0; i < verts.length; i += stride) {
+          if (i + 1 < verts.length) {
+            // Ensure we have x and y
+            positions.add(Offset(verts[i], verts[i + 1]));
+          }
+        }
+
+        if (positions.isEmpty) continue; // Skip if no valid 2D points
+
+        final vertices = Vertices(
+          mesh.vertexMode,
+          positions,
+          indices: mesh.indices,
+        );
         // TODO: Apply material properties (color, shader, texture) to Paint
         final paint =
             Paint()
