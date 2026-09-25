@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://mark.sylphx.com/api/v1/banner?type=glass&theme=tokyonight&text=Nebula&desc=Open+source+%C2%B7+Sylphx+ecosystem&height=200&animation=rise&credit=0" alt="Nebula — Sylphx Mark banner" width="100%" />
+  <img src="https://mark.sylphx.com/api/v1/mark/hero?type=glass&theme=tokyonight&text=Nebula&desc=Open+source+%C2%B7+Sylphx+ecosystem&height=200&animation=rise" alt="Nebula — Sylphx Mark banner" width="100%" />
 </p>
 
 <!--
